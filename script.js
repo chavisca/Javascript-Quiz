@@ -4,6 +4,15 @@ const questionContainerElement = document.getElementById('question-container')
 const questionElement = document.getElementById('question')
 const answerButtonsElement = document.getElementById('answer-buttons')
 const footerElement = document.getElementById('ftr')
+const scoreEl = document.querySelector("score")
+const gameOverEl = document.querySelector("gameover")
+const saveButton = document.querySelector("save")
+const highScoreList = document.querySelector("highscorelist")
+var timeEl = document.querySelector("timer")
+var secondsLeft = 75;
+var score = 0;
+var highScoreListing = [];
+
 
 let shuffledQuestions, currentQuestionIndex
 
@@ -19,12 +28,66 @@ function startGame () {
     shuffledQuestions = questions.sort(() => Math.random() - .5)
     currentQuestionIndex = 0
     questionContainerElement.classList.remove('hide')
+    setTime()
     setNextQuestion()
 }
 
-function setNextQuestion () {
+function setTime() {
+    var timerInterval = setInterval(function() {
+        secondsLeft--;
+        timeEl.textContent = secondsLeft + "seconds remaining";
+
+        if(secondsLeft === 0) {
+            clearInterval(timerInterval);
+            sendMessage();
+        }
+    }, 1000);
+}
+
+function sendMessage() {
+    timeEl.textContent = "Out of Time!";
+    gameOver()
+}
+
+function setNextQuestion() {
     resetState()
   showQuestion(shuffledQuestions[currentQuestionIndex])
+}
+
+function renderMessage() {
+    for (var i = 0; i < highScoreListing.length; i++) {
+        var highScoreList = highScoreListing[i];
+
+        var li = document.createElement("li");
+        li.textContent = highScoreList;
+        li.setAttribute("data-index", i);
+
+        highScoreList.appendChild(li);
+
+    }
+    if (highScore !== null) {
+        document.querySelector(".highscorelist").textContent = init.value + score.value
+    }
+}
+
+saveButton.addEventListener("click", function(event) {
+    event.preventDefault();
+    var highScore = {
+        initials: init.value,
+        score: score.value
+    };
+    highScoreListing.push(highScore);
+    storeHighScoreListing();
+    renderMessage();
+});
+
+function gameOver() {
+    startButton.innerText = 'Restart the Game'
+    startButton.classList.remove('hide')
+    questionContainerElement.classList.add('hide')
+    gameOverEl.classList.remove('hide')
+    scoreEl.textContent = score;
+    
 }
 
 function showQuestion(question) {
@@ -35,6 +98,8 @@ function showQuestion(question) {
     button.classList.add('btn')
     if (answer.correct) {
         button.dataset.correct = answer.correct
+        score++;
+        localStorage.setItem("score", score)
     }
     button.addEventListener('click', selectAnswer)
     answerButtonsElement.appendChild(button)
@@ -52,7 +117,6 @@ function resetState () {
 function selectAnswer (e) {
   const selectedButton = e.target
   const correct = selectedButton.dataset.correct
-  setStatusClass(document.body, correct)
   Array.from(answerButtonsElement.children).forEach(button => {setStatusClass(button, button.dataset.correct)
   })
   nextButton.classList.remove('hide')
@@ -76,6 +140,7 @@ function setStatusClass (element, correct) {
 function clearStatusClass (element) {
     element.classList.remove('correct')
     element.classList.remove('wrong')
+    element.classList.remove('ftr')
 }
 
 const questions = [
@@ -180,3 +245,16 @@ const questions = [
         ]
     }
 ]
+
+function init() {
+    var storedHighScoreListing = JSON.parse(localStorage.getItem("highScoreListing"));
+    if (storedHighScoreListing !== null) {
+        highScoreListing = storedHighScoreList;
+    }
+}
+
+function storeHighScoreListing() {
+    localStorage.setItem("highScoreListing", JSON.stringify(highScoreListing));
+}
+
+init()
