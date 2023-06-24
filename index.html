@@ -9,8 +9,8 @@
   </head>
     <body>
     <div class="topbar">
-      <a href="./highscores.html">View high scores</a>
-      <div id="timer">Seconds Left</div>
+      <div id="highscorelist">View high scores</div>
+      <div id="timer">Keep an eye on the timer!</div>
     </div>
       <div class="container">
         <div id="question-container" class="hide">
@@ -23,8 +23,8 @@
           </div>
         </div>
         <div id="gameover" class="hide">
-          <h3>The Game is Over!  Your final score is:<div id="score"></div></h3>
-          <br>Please enter your initials: <textarea id="init"></textarea>
+          <div id="score"></div>
+          <br>Please enter your initials: <textarea id="initial"></textarea>
           <br><button class="savebtn">Save</button>
         </div>
         <div id="highscore" class="hide">
@@ -34,8 +34,10 @@
         <div class="controls">
           <button id="startbtn" class="startbtn btn">Click here to begin!</button>
           <button id="nextbtn" class="nextbtn btn hide">Next</button>
+          <button id="save" class="savebtn btn hide">Save</button>
         </div>
       </div>
+    </div>
       <footer class="ftr">
       </footer>
     <script src="./script.js"></script>

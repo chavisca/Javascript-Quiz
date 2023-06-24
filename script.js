@@ -4,20 +4,20 @@ const questionContainerElement = document.getElementById('question-container')
 const questionElement = document.getElementById('question')
 const answerButtonsElement = document.getElementById('answer-buttons')
 const footerElement = document.getElementById('ftr')
-const scoreEl = document.querySelector("score")
-const gameOverEl = document.querySelector("gameover")
-const saveButton = document.querySelector("save")
-const highScoreList = document.querySelector("highscorelist")
-var timeEl = document.querySelector("timer")
+const scoreEl = document.getElementById("score")
+const gameOverEl = document.getElementById("gameover")
+const saveButton = document.getElementById("save")
+const highScoreList = document.getElementById("highscorelist")
+var timeEl = document.getElementById("timer")
 var secondsLeft = 75;
-var score = 0;
+var score = "";
 var highScoreListing = [];
 
 
 let shuffledQuestions, currentQuestionIndex
 
 startButton.addEventListener('click', startGame)
-nextButton.addEventListener('click', () => {
+nextButton.addEventListener('click', () => { //add this to select answer function to remove next button
     currentQuestionIndex++
     setNextQuestion()
 })
@@ -34,13 +34,14 @@ function startGame () {
 
 function setTime() {
     var timerInterval = setInterval(function() {
-        secondsLeft--;
-        timeEl.textContent = secondsLeft + "seconds remaining";
-
         if(secondsLeft === 0) {
             clearInterval(timerInterval);
             sendMessage();
+            return;
         }
+        secondsLeft--;
+        timeEl.textContent = secondsLeft + " seconds remaining";
+
     }, 1000);
 }
 
@@ -58,7 +59,7 @@ function renderMessage() {
     for (var i = 0; i < highScoreListing.length; i++) {
         var highScoreList = highScoreListing[i];
 
-        var li = document.createElement("li");
+        var li = document.createElement("<li>");
         li.textContent = highScoreList;
         li.setAttribute("data-index", i);
 
@@ -70,23 +71,12 @@ function renderMessage() {
     }
 }
 
-saveButton.addEventListener("click", function(event) {
-    event.preventDefault();
-    var highScore = {
-        initials: init.value,
-        score: score.value
-    };
-    highScoreListing.push(highScore);
-    storeHighScoreListing();
-    renderMessage();
-});
-
 function gameOver() {
     startButton.innerText = 'Restart the Game'
     startButton.classList.remove('hide')
     questionContainerElement.classList.add('hide')
     gameOverEl.classList.remove('hide')
-    scoreEl.textContent = score;
+    scoreEl.textContent = "The Game is over! Your Final score is " + score;
     
 }
 
@@ -100,24 +90,26 @@ function showQuestion(question) {
         button.dataset.correct = answer.correct
         score++;
         localStorage.setItem("score", score)
-    }
+    } //add else statement to detract 10 seconds from timer for incorrect answer - this may require cleaning up questions (false 1, false 2)
     button.addEventListener('click', selectAnswer)
     answerButtonsElement.appendChild(button)
   })
 }
 
+answerButtonsElement.addEventListener('click', selectAnswer); //moved outside of showquestion function; possible fix for timer decrement expectation
+
 function resetState () {
     clearStatusClass(document.body)
     nextButton.classList.add('hide')
     while (answerButtonsElement.firstChild) {
-      answerButtonsElement.removeChild(answerButtonsElement.firstChild)
+      answerButtonsElement.removeChild(answerButtonsElement.firstChild) //research what this does again
     }
 }
 
 function selectAnswer (e) {
   const selectedButton = e.target
   const correct = selectedButton.dataset.correct
-  Array.from(answerButtonsElement.children).forEach(button => {setStatusClass(button, button.dataset.correct)
+  Array.from(answerButtonsElement.children).forEach(button => {setStatusClass(button, button.dataset.correct) //reclass falses separately?
   })
   nextButton.classList.remove('hide')
   if (shuffledQuestions.length > currentQuestionIndex + 1) {
@@ -125,6 +117,10 @@ function selectAnswer (e) {
   } else {
     startButton.innerText = 'Restart the Game'
     startButton.classList.remove('hide')
+    nextButton.classList.add('hide')
+    secondsLeft = 0;
+    gameOver();
+    return;
   }
   }
 
@@ -195,12 +191,12 @@ const questions = [
         ]
     },
     {
-        question: 'What is the syntax for comparing both values and types in JavaScript?',
+        question: 'What symbols are used to encapsulate function code in JavaScript?',
         answers: [
-            { text: "===", correct: true },
-            { text: "==", correct: false },
-            { text: "!==", correct: false},
-            { text: "==!", correct: false},
+            { text: "{}", correct: true },
+            { text: "[]", correct: false },
+            { text: "//", correct: false},
+            { text: "()", correct: false},
             
         ]
     },
@@ -215,12 +211,12 @@ const questions = [
         ]
     },
     {
-        question: 'What is the syntax for comparing both values and types in JavaScript?',
+        question: 'What keywords cannot declare an object in JavaScript?',
         answers: [
-            { text: "===", correct: true },
-            { text: "==", correct: false },
-            { text: "!==", correct: false},
-            { text: "==!", correct: false},
+            { text: "State", correct: true },
+            { text: "Let", correct: false },
+            { text: "Var", correct: false},
+            { text: "Const", correct: false},
             
         ]
     },
@@ -246,7 +242,18 @@ const questions = [
     }
 ]
 
-function init() {
+saveButton.addEventListener("click", function(event) { //fix localstorage score possibly in var set
+    event.preventDefault();
+    var highScore = {
+        initials: initial.value, //define where initial value comes from - define input field capture
+        score: score.value
+    };
+    highScoreListing.push(highScore);
+    storeHighScoreListing();
+    renderMessage();
+});
+
+function logScore() {
     var storedHighScoreListing = JSON.parse(localStorage.getItem("highScoreListing"));
     if (storedHighScoreListing !== null) {
         highScoreListing = storedHighScoreList;
@@ -257,4 +264,3 @@ function storeHighScoreListing() {
     localStorage.setItem("highScoreListing", JSON.stringify(highScoreListing));
 }
 
-init()
