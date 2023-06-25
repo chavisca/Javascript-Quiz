@@ -55,22 +55,6 @@ function setNextQuestion() {
   showQuestion(shuffledQuestions[currentQuestionIndex])
 }
 
-function renderMessage() {
-    for (var i = 0; i < highScoreListing.length; i++) {
-        var highScoreList = highScoreListing[i];
-
-        var li = document.createElement("<li>");
-        li.textContent = highScoreList;
-        li.setAttribute("data-index", i);
-
-        highScoreList.appendChild(li);
-
-    }
-    if (highScore !== null) {
-        document.querySelector(".highscorelist").textContent = init.value + score.value
-    }
-}
-
 function gameOver() {
     startButton.innerText = 'Restart the Game'
     startButton.classList.remove('hide')
@@ -99,7 +83,7 @@ function showQuestion(question) {
 answerButtonsElement.addEventListener('click', selectAnswer); //moved outside of showquestion function; possible fix for timer decrement expectation
 
 function resetState () {
-    clearStatusClass(document.body)
+    clearStatusClass(document.body) //remove global colorization attributes that were not implemented and add onhover css for color change rather than on click as part of next button removal stage
     nextButton.classList.add('hide')
     while (answerButtonsElement.firstChild) {
       answerButtonsElement.removeChild(answerButtonsElement.firstChild) //research what this does again
@@ -248,19 +232,30 @@ saveButton.addEventListener("click", function(event) { //fix localstorage score 
         initials: initial.value, //define where initial value comes from - define input field capture
         score: score.value
     };
-    highScoreListing.push(highScore);
-    storeHighScoreListing();
+    localStorage.setItem("highScore", JSON.stringify(highScore));
     renderMessage();
 });
 
-function logScore() {
-    var storedHighScoreListing = JSON.parse(localStorage.getItem("highScoreListing"));
-    if (storedHighScoreListing !== null) {
-        highScoreListing = storedHighScoreList;
+function renderHighScoreListing() {
+    highScoreList.innerHTML = "";
+    for (var i = 0; i < highScoreListing.length; i++) {
+        var highScoreList = highScoreListing[i];
+
+        var li = document.createElement("li");
+        li.textContent = highScoreList;
+        li.setAttribute("data-index", i);
+
+        var button = document.createElement("button");
+        button.textContent = "Complete";
+        li.appendChild(button);
+        highScoreList.appendChild(li);
+
     }
 }
 
-function storeHighScoreListing() {
-    localStorage.setItem("highScoreListing", JSON.stringify(highScoreListing));
+function init() {
+    var storedHighScoreList = JSON.parse(localStorage.getItem("highScoreListing"));
+    if (storedHighScoreList !==null) {
+        highScoreList = storedHighScoreList;
+    }
 }
-
