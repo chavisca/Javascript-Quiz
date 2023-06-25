@@ -9,12 +9,13 @@
   </head>
     <body>
     <div class="topbar">
-      <div id="highscorelist">View high scores</div>
-      <div id="timer">Keep an eye on the timer!</div>
+      <div class="hs-link p2" id="view-high-score-link">View high scores</div>
+      <div class="grower p2">&nbsp;</div>
+      <div class="timer p2" id="timer">Keep an eye on the timer!</div>
     </div>
       <div class="container">
-        <div id="question-container" class="hide">
-          <div id="question">Question</div>
+        <div id="question-container" class="hide question-container">
+          <div class="question" id="question">Question</div>
           <div id="answer-buttons" class="btn-grid">
             <button class="btn">Choice A</button>
             <button class="btn">Choice B</button>
@@ -22,24 +23,25 @@
             <button class="btn">Choice D</button>
           </div>
         </div>
-        <div id="gameover" class="hide">
+        <div id="gameover" class="hide gameover">
+          <div class="scoreTitle">All done, the game is over!</div>
           <div id="score"></div>
-          <br>Please enter your initials: <textarea id="initial"></textarea>
-          <br><button class="savebtn">Save</button>
+          <br>Please enter your initials:
+          <input type="text" maxlength="4" id="initial" />
+          <button id="save" class="savebtn btn hide">Save</button>
         </div>
         <div id="highscore" class="hide">
           <h3>High Scores</h3>
-          <ul id="highscorelist"></ul>
+          <ol class="highscorelist" id="highscorelist"></ol>
         </div>
         <div class="controls">
           <button id="startbtn" class="startbtn btn">Click here to begin!</button>
           <button id="nextbtn" class="nextbtn btn hide">Next</button>
-          <button id="save" class="savebtn btn hide">Save</button>
+          <button id="clearhighscoresbtn" class="clearhighscoresbtn btn hide">Save</button>
         </div>
       </div>
     </div>
-      <footer class="ftr">
-      </footer>
+      <div id="ftr" class="ftr p2"></div>
     <script src="./script.js"></script>
   </body>
 </html>

@@ -2,39 +2,54 @@ const startButton = document.getElementById('startbtn')
 const nextButton = document.getElementById('nextbtn')
 const questionContainerElement = document.getElementById('question-container')
 const questionElement = document.getElementById('question')
+const questionTemplateElement = document.getElementById('question-template')
 const answerButtonsElement = document.getElementById('answer-buttons')
 const footerElement = document.getElementById('ftr')
 const scoreEl = document.getElementById("score")
 const gameOverEl = document.getElementById("gameover")
 const saveButton = document.getElementById("save")
 const highScoreList = document.getElementById("highscorelist")
+const highScoreContainer = document.getElementById("highscore")
+const highScoreLink = document.getElementById("view-high-score-link")
+const clearHSButton = document.getElementById("clearhighscoresbtn")
+const initialTime = 75;
+const highScoreListStorageKey = "highScoreList"
 var timeEl = document.getElementById("timer")
-var secondsLeft = 75;
-var score = "";
+var secondsLeft = initialTime;
+var score = 0;
 var highScoreListing = [];
 
 
-let shuffledQuestions, currentQuestionIndex
+let shuffledQuestions, currentQuestionIndex, timerInterval
 
 startButton.addEventListener('click', startGame)
-nextButton.addEventListener('click', () => { //add this to select answer function to remove next button
-    currentQuestionIndex++
-    setNextQuestion()
-})
+nextButton.addEventListener('click', nextQuestion)
+highScoreLink.addEventListener('click', renderHighScoreListing)
 
 function startGame () {
     console.log('Started')
     startButton.classList.add('hide')
+    gameOverEl.classList.add('hide')
+    highScoreContainer.classList.add('hide')
     shuffledQuestions = questions.sort(() => Math.random() - .5)
     currentQuestionIndex = 0
     questionContainerElement.classList.remove('hide')
+
+    secondsLeft = initialTime;
+    score = 0
+
     setTime()
+    setNextQuestion()
+}
+
+function nextQuestion () {
+    currentQuestionIndex++
     setNextQuestion()
 }
 
 function setTime() {
     var timerInterval = setInterval(function() {
-        if(secondsLeft === 0) {
+        if(secondsLeft <= 0) {
             clearInterval(timerInterval);
             sendMessage();
             return;
@@ -55,48 +70,71 @@ function setNextQuestion() {
   showQuestion(shuffledQuestions[currentQuestionIndex])
 }
 
-function gameOver() {
+function showRestartButton() {
     startButton.innerText = 'Restart the Game'
     startButton.classList.remove('hide')
+}
+
+function gameOver() {
+    showRestartButton()
+
     questionContainerElement.classList.add('hide')
     gameOverEl.classList.remove('hide')
-    scoreEl.textContent = "The Game is over! Your Final score is " + score;
-    
+    saveButton.classList.remove('hide')
+
+    scoreEl.textContent = "Your Final score is " + score;
 }
 
 function showQuestion(question) {
   questionElement.innerText = question.question
   question.answers.forEach(answer => {
+
     const button = document.createElement('button')
     button.innerText = answer.text
     button.classList.add('btn')
+    button.classList.add('m1')
+    button.addEventListener('click', selectAnswer)
+
     if (answer.correct) {
         button.dataset.correct = answer.correct
-        score++;
         localStorage.setItem("score", score)
-    } //add else statement to detract 10 seconds from timer for incorrect answer - this may require cleaning up questions (false 1, false 2)
-    button.addEventListener('click', selectAnswer)
+    }
+
     answerButtonsElement.appendChild(button)
   })
 }
 
 answerButtonsElement.addEventListener('click', selectAnswer); //moved outside of showquestion function; possible fix for timer decrement expectation
 
-function resetState () {
-    clearStatusClass(document.body) //remove global colorization attributes that were not implemented and add onhover css for color change rather than on click as part of next button removal stage
+function resetState () { 
     nextButton.classList.add('hide')
-    while (answerButtonsElement.firstChild) {
-      answerButtonsElement.removeChild(answerButtonsElement.firstChild) //research what this does again
-    }
+    answerButtonsElement.innerHTML = '';
 }
 
 function selectAnswer (e) {
   const selectedButton = e.target
   const correct = selectedButton.dataset.correct
-  Array.from(answerButtonsElement.children).forEach(button => {setStatusClass(button, button.dataset.correct) //reclass falses separately?
+
+  e.stopPropagation();
+
+  if(correct) {
+    score += 1;
+    secondsLeft += 1;
+  } else {
+    secondsLeft -= 10;
+  }
+  showCorrectOrWrong(correct)
+
+  Array.from(answerButtonsElement.children).forEach(button => {
+  if (button.dataset.correct) {
+      button.classList.add('correct')
+    } else {
+      button.classList.add('wrong')
+    }
   })
+
   nextButton.classList.remove('hide')
-  if (shuffledQuestions.length > currentQuestionIndex + 1) {
+  if(shuffledQuestions.length > currentQuestionIndex + 1) {
     nextButton.classList.remove('hide')
   } else {
     startButton.innerText = 'Restart the Game'
@@ -106,21 +144,21 @@ function selectAnswer (e) {
     gameOver();
     return;
   }
+
+  nextQuestion()
   }
 
-function setStatusClass (element, correct) {
-    clearStatusClass(element)
-    if (correct) {
-        element.classList.add('correct')
-    } else {
-        element.classList.add('wrong')
-    }
-    }
+function showCorrectOrWrong(isCorrect) {
+    footerElement.classList.remove('correct');
+    footerElement.classList.remove('wrong');
 
-function clearStatusClass (element) {
-    element.classList.remove('correct')
-    element.classList.remove('wrong')
-    element.classList.remove('ftr')
+    if (isCorrect) {
+        footerElement.innerText = "Correct!";
+        footerElement.classList.add('correct');
+    } else {
+        footerElement.innerText = "WRONG!";
+        footerElement.classList.add('wrong');
+    }
 }
 
 const questions = [
@@ -226,36 +264,52 @@ const questions = [
     }
 ]
 
-saveButton.addEventListener("click", function(event) { //fix localstorage score possibly in var set
+saveButton.addEventListener("click", function(event) { 
     event.preventDefault();
     var highScore = {
-        initials: initial.value, //define where initial value comes from - define input field capture
-        score: score.value
+        initials: initial.value, 
+        score: score
     };
-    localStorage.setItem("highScore", JSON.stringify(highScore));
-    renderMessage();
+    highScoreListing.push(highScore)
+
+    highScoreListing.sort(function(a, b) {
+        var keyA = a.score
+        var keyB = b.score
+
+        if (keyA > keyB) return -1;
+        if (keyB > keyA) return 1;
+        return 0;
+    });
+
+    localStorage.setItem(highScoreListStorageKey, JSON.stringify(highScoreListing));
+    renderHighScoreListing();
 });
 
 function renderHighScoreListing() {
+    clearInterval(timerInterval);
+
     highScoreList.innerHTML = "";
     for (var i = 0; i < highScoreListing.length; i++) {
-        var highScoreList = highScoreListing[i];
+        var highScoreElem = highScoreListing[i];
 
         var li = document.createElement("li");
-        li.textContent = highScoreList;
+        li.textContent = highScoreElem.initials + " - " + highScoreElem.score;
         li.setAttribute("data-index", i);
 
-        var button = document.createElement("button");
-        button.textContent = "Complete";
-        li.appendChild(button);
         highScoreList.appendChild(li);
-
     }
+    questionContainerElement.classList.add('hide')
+    gameOverEl.classList.add('hide')
+    highScoreContainer.classList.remove('hide')
+    clearHSButton.classList.remove('hide')
+    showRestartButton()
 }
 
 function init() {
-    var storedHighScoreList = JSON.parse(localStorage.getItem("highScoreListing"));
+    var storedHighScoreList = JSON.parse(localStorage.getItem(highScoreListStorageKey));
     if (storedHighScoreList !==null) {
         highScoreList = storedHighScoreList;
     }
 }
+
+init()
