@@ -1,0 +1,107 @@
+* {
+  font-size: 1.8rem;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.p1 { padding: 0.25rem; }
+.p2 { padding: 0.5rem; }
+.p3 { padding: 0.75rem; }
+.p4 { padding: 1rem; }
+.m1 { margin: 0.25rem; }
+.m2 { margin: 0.5rem; }
+.m3 { margin: 0.75rem; }
+.m4 { margin: 1rem; }
+.grower { flex-grow: 8 !important; }
+.hide { display: none; }
+
+.btn {
+  background-color: #351D75;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  color: #FEFEFF;
+  cursor: pointer;
+  opacity: 80%;
+}
+.btn:active {
+  border-style: inset;
+}
+.btn:hover {
+  text-decoration: none;
+  opacity: 100%;
+}
+
+.topbar {
+  display: flex;
+}
+.topbar > div {
+  flex-grow: 1;
+}
+.topbar .hs-link {
+  text-decoration: underline;
+  color: darkslategrey;
+  cursor: pointer;
+}
+.topbar .hs-link:hover {
+  text-decoration: none;
+}
+.topbar .timer {
+  text-align: right;
+}
+
+.container {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  height: 80svh;
+  /* vertical-align: middle; */
+  justify-content: center;
+  flex-direction: column;
+}
+
+.question-container {
+  width: 60%;
+  margin: auto;
+}
+
+.question {
+  font-weight: bold;
+  text-align: left;
+  margin-bottom: 1.25rem;
+}
+.btn-grid .btn {
+  width: 100%;
+}
+
+.gameover {
+  width: 60%;
+  margin: auto;
+  text-align: left;
+}
+.gameover .scoreTitle {
+  font-weight: bold;
+  font-size: 120%;
+  margin-bottom: 1rem;
+}
+
+.highscorelist {
+  text-align: left;
+  width: 42%;
+  margin: 1rem auto;
+  text-transform: uppercase;
+}
+.highscorelist li:nth-child(2n+1) {
+  background-color: #D9D3E9;
+}
+
+.ftr {
+  background-color: white;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.ftr.correct {
+  background-color: lightgreen;
+}
+.ftr.wrong {
+  background-color: pink;
+}
