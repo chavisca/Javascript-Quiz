@@ -34,6 +34,8 @@ function startGame () {
     shuffledQuestions = questions.sort(() => Math.random() - .5)
     currentQuestionIndex = 0
     questionContainerElement.classList.remove('hide')
+    footerElement.classList.remove('hide')
+    clearHSButton.classList.add('hide')
 
     secondsLeft = initialTime;
     score = 0
@@ -61,7 +63,7 @@ function setTime() {
 }
 
 function sendMessage() {
-    timeEl.textContent = "Out of Time!";
+    timeEl.textContent = "The game is over!";
     gameOver()
 }
 
@@ -81,6 +83,10 @@ function gameOver() {
     questionContainerElement.classList.add('hide')
     gameOverEl.classList.remove('hide')
     saveButton.classList.remove('hide')
+    footerElement.classList.add('hide')
+    footerElement.classList.remove('correct');
+    footerElement.classList.remove('wrong');
+    footerElement.innerText = "";
 
     scoreEl.textContent = "Your Final score is " + score;
 }
@@ -104,7 +110,7 @@ function showQuestion(question) {
   })
 }
 
-answerButtonsElement.addEventListener('click', selectAnswer); //moved outside of showquestion function; possible fix for timer decrement expectation
+answerButtonsElement.addEventListener('click', selectAnswer); 
 
 function resetState () { 
     nextButton.classList.add('hide')
@@ -287,6 +293,7 @@ saveButton.addEventListener("click", function(event) {
 
 function renderHighScoreListing() {
     clearInterval(timerInterval);
+    secondsLeft = 0;
 
     highScoreList.innerHTML = "";
     for (var i = 0; i < highScoreListing.length; i++) {
@@ -302,7 +309,17 @@ function renderHighScoreListing() {
     gameOverEl.classList.add('hide')
     highScoreContainer.classList.remove('hide')
     clearHSButton.classList.remove('hide')
+
     showRestartButton()
+}
+
+clearHSButton.addEventListener('click', clearHS)
+
+function clearHS() {
+    highScoreListing = [];
+    highScoreList.innerHTML = ""
+    localStorage.setItem(highScoreListStorageKey, JSON.stringify(highScoreListing));
+    clearHSButton.classList.add('hide')
 }
 
 function init() {
